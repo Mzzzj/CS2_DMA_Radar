@@ -9,7 +9,9 @@
   "dependencies": {
     "leaflet": "^1.9.4",
     "leaflet.pm": "^2.2.0",
-    "vue": "^3.2.8"
+    "socket.io-client": "^4.7.2",
+    "vue": "^3.2.8",
+    "vue-socket.io": "^3.0.10"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.6.0",
