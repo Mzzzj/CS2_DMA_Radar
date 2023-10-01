@@ -9,28 +9,26 @@
 </template>
 
 <script>
-	import icon from "/green.png";
+	import localPlayerIcon from '/src/icon/green.png'
+	import enemyicon from '/src/icon/red.png'
+	import axios from 'axios';
 	var that;
 	export default {
 		components: {},
 
 		data() {
 			return {
-				playerInfoList:[],
-				MarkerList:[],
+				playerInfoList: [],
+				MarkerList: [],
 				socket: null,
 				markerList: [],
 				map: null,
-				center: [300, 300],
+				center: [0, 0],
 				zoom: 1,
-				markerUrl: L.icon({
-					iconUrl: icon,
-					iconSize: [18, 18],
-				}),
 				bgImg: "dust2.png",
 				bounds: [
-					[0, 0],
-					[400, 400],
+					[-115, -240],
+					[335, 210],
 				],
 				imageOverLay: null,
 			};
@@ -42,48 +40,39 @@
 
 		//生命周期 - 创建完成（可以访问当前this实例）
 		created() {
+			setInterval(() => {
+				axios.get("http://127.0.0.1:8080/getGameData").then(response => {
+					let MarkerList=[];
+					response.data.playerList.forEach(item => {
+						if(item.alive){
+							let potin = L.latLng(item.x / 10, item.y / 10);
+							let icon = L.icon({
+								iconUrl: item.enemy?enemyicon:localPlayerIcon,
+								iconSize: [20, 20],
+							})
+							if (item.localPlayer) {
+								this.map.flyTo(potin, 1);
+							}
+							MarkerList.push(this.addMarker(potin,icon));
+						}
+						
+					})
+					if (that.layerGroup != null) {
+						that.map.removeLayer(that.layerGroup)
+					}
+					that.MarkerList=MarkerList;
+					that.layerGroup = L.layerGroup(that.MarkerList);
+					that.map.addLayer(that.layerGroup);
+				});
+			}, 100)
 
-			// setInterval(() => {
-			// 	this.markerList.forEach(marker => {
-			// 		console.log(marker.getLatLng())
-			// 		console.log(marker.getLatLng().lat)
-			// 		console.log(marker.getLatLng().lng)
-			// 		marker.setLatLng(L.latLng(marker.getLatLng().lat + 1, marker.getLatLng().lng + 1))
-			// 	})
-			// }, 500)
-			
-			
+
+
 		},
 		//生命周期 - 挂载完成（可以访问DOM元素）
 		mounted() {
-			that=this;
+			that = this;
 			this.init();
-			this.websocket = new WebSocket("ws://127.0.0.1:8800")
-			this.websocket.onmessage = (res) => {
-				that.playerInfoList=JSON.parse(res.data).playerList;
-				that.playerInfoList.forEach(item=>{
-					if(item.localPlayer){
-						//console.log(item.x+"----"+item.y)
-						
-						//let potin=L.latLng(item.x/8.69309, item.y/4.437411)
-						//this.MarkerList[0].setLatLng(potin)
-						//this.map.flyTo(potin,3);
-					}
-				})
-				//4.16525 8.69309
-				//this.$forceUpdate();
-				//console.log(that.bounds)
-			}
-			this.websocket.onopen = () => {
-				//this.map.removeLayer(this.MarkerList[0]);
-				if (that.layerGroup !== null) {
-					//that.layerGroup.clearLayers(); //批量移除图层
-				}
-				setInterval(()=>{
-					this.websocket.send("1")
-				},1000)
-			}
-			
 		},
 		methods: {
 			// 初始化地图
@@ -93,31 +82,17 @@
 					zoom: this.zoom,
 					crs: L.CRS.Simple,
 					bounds: this.bounds,
-					maxZoom:3,
+					maxZoom: 5,
 					minZoom: 1
 				});
 				//加载单张图
 				this.imageOverLay = L.imageOverlay(this.bgImg, this.bounds, {
 					interactive: true, //允许地图触发事件
 				}).addTo(this.map);
-				//   画marker
-				
-				//1561.9688----3059.9688
-				//375,352
-				//-1031.9688-----2203.8438
-				//15,18
-				//8.1599168 4.437411
-				console.log(1561.9688+1031.9688)
-				console.log(3059.9688-2203.8438)
-				console.log(375-15)
-				console.log(352-18)
-				this.MarkerList.push(this.addMarker(15,18));
-				that.layerGroup = L.layerGroup(this.MarkerList);
-				that.map.addLayer(that.layerGroup);
 			},
-			addMarker(X,Y) {
-				return L.marker([X,Y], {
-					icon: this.markerUrl
+			addMarker(point, icon) {
+				return L.marker(point, {
+					icon: icon
 				});
 			},
 		},
