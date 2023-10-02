@@ -1,69 +1,109 @@
 <!-- 测试页面 -->
 <template>
-	<div style="height: 100px;z-index: 999;">
-		<div v-for="(item,index) in playerInfoList" :style="item.localPlayer?'color: red;font-weight: 700;':''">
-			{{JSON.stringify(item)}}
-		</div>
-	</div>
 	<div id="map"></div>
 </template>
 
 <script>
-	import localPlayerIcon from '/src/icon/green.png'
-	import enemyicon from '/src/icon/red.png'
 	import axios from 'axios';
-	var that;
-	export default {
-		components: {},
 
+	import localPlayerIcon from '/src/icon/localPlayer_icon.png'
+	import enemyIcon from '/src/icon/enemy_icon.png'
+	import teammateIcon from '/src/icon/teammate_icon.png'
+	import enemyIconHvd from '/src/icon/enemy_icon_hvd.png'
+	import teammateIconHvd from '/src/icon/teammate_icon_hvd.png'
+
+	import de_ancient_radar from '/src/map/de_ancient_radar.png'
+	//import de_cache_radar from '/src/map/de_cache_radar.png'
+	import de_dust2_radar from '/src/map/de_dust2_radar.png'
+	import de_inferno_radar from '/src/map/de_inferno_radar.png'
+	import de_mirage_radar from '/src/map/de_mirage_radar.png'
+	import de_nuke_lower_radar from '/src/map/de_nuke_lower_radar.png'
+	import de_nuke_radar from '/src/map/de_nuke_radar.png'
+	import de_overpass_radar from '/src/map/de_overpass_radar.png'
+	import de_vertigo_lower_radar from '/src/map/de_vertigo_lower_radar.png'
+	import de_vertigo_radar from '/src/map/de_vertigo_radar.png'
+
+
+
+	var that;
+	var mapRadar = {
+		de_ancient: {
+			map: de_ancient_radar,
+			bounds: [
+				[-294, -289],
+				[217, 213]
+			]
+		},
+		de_dust2: {
+			map: de_dust2_radar,
+			bounds: [
+				[-127, -247],
+				[323, 202]
+			]
+		},
+		de_inferno: {
+			map: de_inferno_radar,
+			bounds: [
+				[-112, -206],
+				[380, 292]
+			]
+		},
+		de_mirage: {
+			map: de_mirage_radar,
+			bounds: [
+				[-340, -322],
+				[172, 188]
+			]
+		},
+		de_nuke: {
+			needChangeMap: true,
+			map: de_nuke_radar,
+			mapLower: de_nuke_lower_radar,
+			lowerValue: -480,
+			bounds: [[-441,-329],[304,357]]
+		},
+		de_overpass: {
+			map: de_overpass_radar,
+			bounds: [
+				[-361, -479],
+				[181, 42]
+			]
+		},
+		de_vertigo: {
+			needChangeMap: true,
+			map: de_vertigo_radar,
+			mapLower: de_vertigo_lower_radar,
+			lowerValue:11720,
+			bounds: [[-223,-312],[172,84]]
+		}
+	};
+	export default {
 		data() {
 			return {
-				playerInfoList: [],
+				lastMapName: null,
+				gameInfo: {},
 				MarkerList: [],
-				socket: null,
-				markerList: [],
 				map: null,
-				center: [0, 0],
-				zoom: 1,
-				bgImg: "dust2.png",
-				bounds: [
-					[-115, -240],
-					[335, 210],
-				],
 				imageOverLay: null,
+				bounds: [
+					[-330, -315],
+					[155, 185]
+				],
+				XSize: 500,
+				YSize: 500
 			};
 		},
-
-		computed: {},
-
-		watch: {},
-
 		//生命周期 - 创建完成（可以访问当前this实例）
 		created() {
 			setInterval(() => {
 				axios.get("http://127.0.0.1:8080/getGameData").then(response => {
-					let MarkerList=[];
-					response.data.playerList.forEach(item => {
-						if(item.alive){
-							let potin = L.latLng(item.x / 10, item.y / 10);
-							let icon = L.icon({
-								iconUrl: item.enemy?enemyicon:localPlayerIcon,
-								iconSize: [20, 20],
-							})
-							if (item.localPlayer) {
-								this.map.flyTo(potin, 1);
-							}
-							MarkerList.push(this.addMarker(potin,icon));
-						}
+					if (response.data != "") {
 						
-					})
-					if (that.layerGroup != null) {
-						that.map.removeLayer(that.layerGroup)
+						that.gameInfo.mapName = response.data.mapName;
+						that.gameInfo.tick = response.data.tick;
+						that.initPlayerList(response.data.playerList);
 					}
-					that.MarkerList=MarkerList;
-					that.layerGroup = L.layerGroup(that.MarkerList);
-					that.map.addLayer(that.layerGroup);
-				});
+				}).catch();
 			}, 100)
 
 
@@ -72,27 +112,157 @@
 		//生命周期 - 挂载完成（可以访问DOM元素）
 		mounted() {
 			that = this;
-			this.init();
+			window.addEventListener("keydown", this.KeyDown, true);
+			this.initMap();
 		},
 		methods: {
+			initPlayerList(data) {
+				let MarkerList = [];
+				let knowMap = true;
+				if (typeof(mapRadar[that.gameInfo.mapName]) == "undefined") {
+					knowMap = false;
+				}
+				if (knowMap) {
+					that.initKnowMap();
+				} else {
+					that.initUnKnowMap();
+				}
+				if (data.length > 0) {
+					this.updatePlayerMarker(data, knowMap);
+				}
+			},
+			initKnowMap() {
+
+				//当变更地图
+				//更新地图
+				if (that.lastMapName != that.gameInfo.mapName) {
+					that.lastMapName = that.gameInfo.mapName;
+					//加载单张图
+					if (that.imageOverLay != null) {
+						that.map.removeLayer(that.imageOverLay)
+					}
+					this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, mapRadar[that.gameInfo.mapName].bounds).addTo(this.map);
+					//this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, this.bounds).addTo(this.map);
+				}
+			},
+			initUnKnowMap() {
+				if (that.imageOverLay != null) {
+					that.map.removeLayer(that.imageOverLay)
+					that.imageOverLay = null;
+				}
+			},
+			updatePlayerMarker(data, knowMap) {
+				let mlist = [];
+				data.forEach(item => {
+					if (item.alive) {
+						let potin = L.latLng(item.x / 10, item.y / 10);
+						let icon = L.icon({
+							iconUrl: item.localPlayer ? localPlayerIcon : (item.enemy ? (item.sameLevel?enemyIcon:enemyIconHvd) : (item.sameLevel?teammateIcon:teammateIconHvd)),
+							iconSize: [40, 40],
+							iconAnchor: [19, 25]
+						})
+						if (item.localPlayer) {
+							this.map.flyTo(potin, 2);
+						}
+						
+						mlist.push(this.addMarker(potin, icon, item.localPlayer ? knowMap ? item.angles : 0 : !
+							knowMap ? item.angles : 0));
+					}
+					if(item.localPlayer){
+						if(mapRadar[that.gameInfo.mapName].needChangeMap){
+							if(item.z>mapRadar[that.gameInfo.mapName].lowerValue){
+								that.map.removeLayer(that.imageOverLay)
+								this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, mapRadar[that.gameInfo.mapName].bounds).addTo(this.map);
+							}else{
+								that.map.removeLayer(that.imageOverLay)
+								this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].mapLower, mapRadar[that.gameInfo.mapName].bounds).addTo(this.map);
+							}
+							
+						}
+					}
+					
+				})
+				if (that.layerGroup != null) {
+					that.map.removeLayer(that.layerGroup)
+				}
+				that.MarkerList = mlist;
+				that.layerGroup = L.layerGroup(that.MarkerList);
+				that.map.addLayer(that.layerGroup);
+			},
+			reloadMap() {
+				//加载单张图
+				if (that.imageOverLay != null) {
+					that.map.removeLayer(that.imageOverLay)
+				}
+				this.bounds[1] = [this.bounds[0][0] + this.XSize, this.bounds[0][1] + this.YSize];
+				//0: Array [ -330, -315 ]1: Array [ 170, 185 ]
+				this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, this.bounds)
+					.addTo(this.map);
+			},
+			KeyDown(e) {
+
+
+				if (e.keyCode == 96) {
+					this.XSize = 500;
+					this.YSize = 500;
+					this.reloadMap();
+				}
+				//+ X
+				if (e.keyCode == 98) {
+					this.XSize += 1
+					this.reloadMap();
+				}
+				//-
+				if (e.keyCode == 97) {
+					this.XSize -= 1
+					this.reloadMap();
+				}
+				//+ Y
+				if (e.keyCode == 101) {
+					this.YSize += 1
+					this.reloadMap();
+				}
+				//-
+				if (e.keyCode == 100) {
+					this.YSize -= 1
+					this.reloadMap();
+				}
+				//←
+				if (e.keyCode == 37) {
+					this.bounds[0][1] += 1;
+					this.reloadMap();
+				}
+				//↑
+				if (e.keyCode == 38) {
+					this.bounds[0][0] -= 1;
+					this.reloadMap();
+				}
+				//→
+				if (e.keyCode == 39) {
+					this.bounds[0][1] -= 1;
+					this.reloadMap();
+				}
+				//↓
+				if (e.keyCode == 40) {
+					this.bounds[0][0] += 1;
+					this.reloadMap();
+				}
+			},
 			// 初始化地图
-			init() {
+			initMap() {
 				this.map = L.map("map", {
-					center: this.center,
-					zoom: this.zoom,
+					center: [0, 0],
+					zoom: 1,
 					crs: L.CRS.Simple,
-					bounds: this.bounds,
-					maxZoom: 5,
+					maxZoom: 3,
 					minZoom: 1
 				});
-				//加载单张图
-				this.imageOverLay = L.imageOverlay(this.bgImg, this.bounds, {
-					interactive: true, //允许地图触发事件
-				}).addTo(this.map);
+
 			},
-			addMarker(point, icon) {
+			addMarker(point, icon, angles) {
 				return L.marker(point, {
-					icon: icon
+					icon: icon,
+					rotationAngle: angles
 				});
 			},
 		},
@@ -103,7 +273,7 @@
 		position: absolute;
 		width: 100%;
 		height: 100%;
-		top: 5;
+		top: 0;
 		left: 0;
 		z-index: 0;
 	}

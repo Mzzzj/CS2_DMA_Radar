@@ -14,11 +14,12 @@ public class PlayerInfo {
     private  float y;
     private  float z;
     private  float Angles;
+    private  boolean isSameLevel;
 
     public PlayerInfo() {
     }
 
-    public PlayerInfo(long entityAddress, long entityPawnAddress, int teamId, int health, int armor, boolean isAlive, boolean isLocalPlayer, boolean isEnemy, float x, float y, float z, float angles) {
+    public PlayerInfo(long entityAddress, long entityPawnAddress, int teamId, int health, int armor, boolean isAlive, boolean isLocalPlayer, boolean isEnemy, float x, float y, float z, float angles,boolean isSameLevel) {
         this.entityAddress = entityAddress;
         this.entityPawnAddress = entityPawnAddress;
         this.teamId = teamId;
@@ -30,7 +31,16 @@ public class PlayerInfo {
         this.x = x;
         this.y = y;
         this.z = z;
-        Angles = angles;
+        this.Angles = angles;
+        this.isSameLevel=isSameLevel;
+    }
+
+    public boolean isSameLevel() {
+        return isSameLevel;
+    }
+
+    public void setSameLevel(boolean sameLevel) {
+        isSameLevel = sameLevel;
     }
 
     public long getEntityAddress() {

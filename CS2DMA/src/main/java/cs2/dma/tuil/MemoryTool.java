@@ -4,8 +4,10 @@ import vmm.IVmm;
 import vmm.IVmmMemScatterMemory;
 import vmm.IVmmProcess;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 
 public class MemoryTool {
     private IVmmProcess process;
@@ -20,6 +22,21 @@ public class MemoryTool {
     }
     public long readAddress(long va,int size){
         return longFrom8Bytes(process.memRead(va,size,1),0,true);
+    }
+    public String readString(long va,int size){
+        byte[] bstr=process.memRead(va,size,1);
+        int length=0;
+        for (int i = 0; i < bstr.length; i++) {
+            if(bstr[i]==0){
+                break;
+            }
+            length++;
+        }
+        byte[] str=new byte[length];
+        for (int i = 0; i < length; i++) {
+            str[i]=bstr[i];
+        }
+       return new String(str, StandardCharsets.UTF_8);
     }
     public int readInt(long va,int size){
         return bytesToIntLittleEndian(process.memRead(va,size,1));

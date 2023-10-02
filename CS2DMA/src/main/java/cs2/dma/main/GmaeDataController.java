@@ -21,11 +21,16 @@ public class GmaeDataController {
     public String getGameData(){
         Date time=new Date();
         JSONObject gameData=new JSONObject();
+        String mapName=gameDataManager.getMapName();
+        if("<empty>".equals(mapName)||"".equals(mapName)||mapName==null){
+            return "";
+        }
         gameDataManager.initPlayerInfo();
         List<PlayerInfo> list=gameDataManager.getPlayerInfoList();
         gameData.put("playerList",list);
-        gameData.put("mapName","dust2");
-        gameData.put("time",new Date().getTime()-time.getTime());
+        gameData.put("mapName",mapName);
+        gameData.put("tick",new Date().getTime()-time.getTime());
         return gameData.toJSONString();
     }
+
 }
