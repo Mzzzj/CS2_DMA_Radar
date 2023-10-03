@@ -1,16 +1,19 @@
 <!-- 测试页面 -->
 <template>
-	 <div class="control">
-		 <div >
-		 	tick:{{gameInfo.tick}}
-		 </div>
-		 <div >
+	<div class="control">
+		<div>
+			玩家数量:{{playerNum}}
+		</div>
+		<div>
+			tick:{{gameInfo.tick}}
+		</div>
+		<div>
 			avgTick:{{parseInt(allTickVal/tickTimes)}}
 		</div>
-		 <div @click="opchange()">
-			 人物跟随开关<input type="checkbox" v-model="isOpenFlow"/>
-		 </div>
-	 </div>
+		<div @click="opchange()">
+			人物跟随开关<input type="checkbox" v-model="isOpenFlow" />
+		</div>
+	</div>
 	<div id="map"></div>
 </template>
 
@@ -71,7 +74,10 @@
 			map: de_nuke_radar,
 			mapLower: de_nuke_lower_radar,
 			lowerValue: -480,
-			bounds: [[-441,-329],[304,357]]
+			bounds: [
+				[-441, -329],
+				[304, 357]
+			]
 		},
 		de_overpass: {
 			map: de_overpass_radar,
@@ -84,17 +90,21 @@
 			needChangeMap: true,
 			map: de_vertigo_radar,
 			mapLower: de_vertigo_lower_radar,
-			lowerValue:11720,
-			bounds: [[-223,-312],[172,84]]
+			lowerValue: 11720,
+			bounds: [
+				[-223, -312],
+				[172, 84]
+			]
 		}
 	};
 	export default {
 		data() {
 			return {
-				allTickVal:0,
-				tickTimes:0,
-				isOpenFlow:false,
-				zoom:1,
+				playerNum:0,
+				allTickVal: 0,
+				tickTimes: 0,
+				isOpenFlow: false,
+				zoom: 1,
 				lastMapName: null,
 				gameInfo: {},
 				MarkerList: [],
@@ -115,8 +125,9 @@
 					if (response.data != "") {
 						that.gameInfo.mapName = response.data.mapName;
 						that.gameInfo.tick = response.data.tick;
+						that.playerNum=response.data.playerList.length;
 						that.tickTimes++;
-						that.allTickVal+=response.data.tick?response.data.tick:0;
+						that.allTickVal += response.data.tick;
 						that.initPlayerList(response.data.playerList);
 					}
 				}).catch();
@@ -132,8 +143,8 @@
 			this.initMap();
 		},
 		methods: {
-			opchange(){
-				this.isOpenFlow=!this.isOpenFlow;
+			opchange() {
+				this.isOpenFlow = !this.isOpenFlow;
 			},
 			initPlayerList(data) {
 				let MarkerList = [];
@@ -155,21 +166,22 @@
 				//当变更地图
 				//更新地图
 				if (that.lastMapName != that.gameInfo.mapName) {
-					this.allTickVal=0;
-					this.tickTimes=0;
 					that.lastMapName = that.gameInfo.mapName;
 					//加载单张图
 					if (that.imageOverLay != null) {
+						this.allTickVal = 0;
+						this.tickTimes = 0;
 						that.map.removeLayer(that.imageOverLay)
 					}
-					this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, mapRadar[that.gameInfo.mapName].bounds).addTo(this.map);
+					this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, mapRadar[that.gameInfo.mapName]
+						.bounds).addTo(this.map);
 					//this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, this.bounds).addTo(this.map);
 				}
 			},
 			initUnKnowMap() {
-				this.allTickVal=0;
-				this.tickTimes=0;
 				if (that.imageOverLay != null) {
+					this.allTickVal = 0;
+					this.tickTimes = 0;
 					that.map.removeLayer(that.imageOverLay)
 					that.imageOverLay = null;
 				}
@@ -180,29 +192,34 @@
 					if (item.alive) {
 						let potin = L.latLng(item.x / 10, item.y / 10);
 						let icon = L.icon({
-							iconUrl: item.localPlayer ? localPlayerIcon : (item.enemy ? (item.sameLevel?enemyIcon:enemyIconHvd) : (item.sameLevel?teammateIcon:teammateIconHvd)),
+							iconUrl: item.localPlayer ? localPlayerIcon : (item.enemy ? (item.sameLevel ?
+								enemyIcon : enemyIconHvd) : (item.sameLevel ? teammateIcon :
+								teammateIconHvd)),
 							iconSize: [40, 40],
 							iconAnchor: [19, 25]
 						})
-						if (item.localPlayer&&this.isOpenFlow) {
+						if (item.localPlayer && this.isOpenFlow) {
 							this.map.flyTo(potin, this.map.getZoom());
 						}
-						
-						mlist.push(this.addMarker(potin, icon, item.localPlayer ? (knowMap ? item.angles : 0) : item.angles));
+
+						mlist.push(this.addMarker(potin, icon, item.localPlayer ? (knowMap ? item.angles : 0) :
+							item.angles));
 					}
-					if(item.localPlayer){
-						if(mapRadar[that.gameInfo.mapName].needChangeMap){
-							if(item.z>mapRadar[that.gameInfo.mapName].lowerValue){
+					if (item.localPlayer && knowMap) {
+						if (mapRadar[that.gameInfo.mapName].needChangeMap) {
+							if (item.z > mapRadar[that.gameInfo.mapName].lowerValue) {
 								that.map.removeLayer(that.imageOverLay)
-								this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, mapRadar[that.gameInfo.mapName].bounds).addTo(this.map);
-							}else{
+								this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, mapRadar[
+									that.gameInfo.mapName].bounds).addTo(this.map);
+							} else {
 								that.map.removeLayer(that.imageOverLay)
-								this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].mapLower, mapRadar[that.gameInfo.mapName].bounds).addTo(this.map);
+								this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].mapLower,
+									mapRadar[that.gameInfo.mapName].bounds).addTo(this.map);
 							}
-							
+
 						}
 					}
-					
+
 				})
 				if (that.layerGroup != null) {
 					that.map.removeLayer(that.layerGroup)
@@ -298,7 +315,8 @@
 		left: 0;
 		z-index: 0;
 	}
-	.control{
+
+	.control {
 		position: absolute;
 		top: 100px;
 		left: 10px;

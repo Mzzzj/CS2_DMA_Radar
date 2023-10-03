@@ -14,6 +14,7 @@ public class GameDataManager {
     private static long dwLocalPlayerPawn  =0x187AC28;
     private static long dwEntityList   =0x178D8C8;
 
+    private   String knowMap= "de_ancient,de_dust2,de_inferno,de_mirage,de_nuke,de_overpass,de_vertigo";
     private static String[] argvMemProcFS = {"","-device", "FPGA"};
 
     private static IVmmProcess gameProcess;
@@ -31,7 +32,7 @@ public class GameDataManager {
     private  IVmm vmm;
     public boolean initializeVmm(){
         this.vmm = IVmm.initializeVmm(System.getProperty("user.dir")+"\\vmm", argvMemProcFS);
-        vmm.setConfig(IVmm.VMMDLL_OPT_REFRESH_FREQ_FAST, 0);
+        vmm.setConfig(IVmm.VMMDLL_OPT_REFRESH_FREQ_FAST, 1);
         return vmm.isValid();
     }
 
@@ -46,18 +47,19 @@ public class GameDataManager {
     public boolean initializeGameData(){
        List<IVmmProcess> pList= this.vmm.processGetAll();
        for (int i = 0; i < pList.size(); i++) {
-           if(pList.get(i).getName().equals("cs2.exe")){
-               gameProcess=pList.get(i);
-               break;
-           }
+          if(pList.get(i).getName().equals("cs2.exe")){
+              gameProcess=pList.get(i);
+              break;
+          }
        }
+
        memoryTool=new MemoryTool(gameProcess);
        clientAddress=memoryTool.getModuleAddress("client.dll");
-        mapNameAddress=memoryTool.getModuleAddress("matchmaking.dll");
-        mapNameAddress=memoryTool.readAddress(mapNameAddress+0x001CC350,8);
+       mapNameAddress=memoryTool.getModuleAddress("matchmaking.dll");
+       mapNameAddress=memoryTool.readAddress(mapNameAddress+0x001CC350,8);
        EntityList=memoryTool.readAddress(clientAddress+dwEntityList,8);
        EntityList=memoryTool.readAddress(EntityList+0x10,8);
-        LocalPlayerController=memoryTool.readAddress(clientAddress+dwLocalPlayerPawn,8);
+
        initPlayerInfo();
        if(EntityList==0){
            return false;
@@ -67,13 +69,15 @@ public class GameDataManager {
     }
 
     public  void  initPlayerInfo(){
+
         mapName= memoryTool.readString(mapNameAddress+0x4,32);
+        LocalPlayerController=memoryTool.readAddress(clientAddress+dwLocalPlayerPawn,8);
         if(LocalPlayerController==0){
             return;
         }
         List<PlayerInfo> list=new ArrayList<>();
         List<PlayerAddressUpdateThread> pautList=new ArrayList<>();
-
+        boolean isKnowMap=mapName!=null&&!"".equals(mapName)&&knowMap.indexOf(mapName)!=-1;
         for (int i = 0; i < 64; i++) {
             PlayerAddressUpdateThread updateThread=new PlayerAddressUpdateThread();
             updateThread.setIndex(i);
@@ -82,7 +86,7 @@ public class GameDataManager {
             updateThread.setEntityList(EntityList);
             updateThread.setDwEntityList(dwEntityList);
             updateThread.setLocalPlayerController(LocalPlayerController);
-            updateThread.setMapName(mapName);
+            updateThread.setKnowMap(isKnowMap);
             updateThread.start();
             pautList.add(updateThread);
         }
@@ -102,7 +106,6 @@ public class GameDataManager {
     public  List<PlayerInfo> getPlayerInfoList() {
         return playerInfoList;
     }
-
 
 
 }

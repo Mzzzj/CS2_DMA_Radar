@@ -8,11 +8,9 @@ import java.util.Random;
 public class PlayerAddressUpdateThread extends Thread {
     private  int index;
     private PlayerInfo playerInfo;
-
+    private boolean isKnowMap;
     private   float levelHeight =250;
     private MemoryTool memoryTool;
-
-    private String mapName;
     private long EntityList;
     private long clientAddress;
     
@@ -20,12 +18,12 @@ public class PlayerAddressUpdateThread extends Thread {
 
     private long dwEntityList;
 
-    public void setLocalPlayerController(long localPlayerController) {
-        LocalPlayerController = localPlayerController;
+    public void setKnowMap(boolean knowMap) {
+        isKnowMap = knowMap;
     }
 
-    public void setMapName(String mapName) {
-        this.mapName = mapName;
+    public void setLocalPlayerController(long localPlayerController) {
+        LocalPlayerController = localPlayerController;
     }
 
     public void setEntityList(long entityList) {
@@ -64,7 +62,7 @@ public class PlayerAddressUpdateThread extends Thread {
         Pawn=memoryTool.readAddress(EntityPawnListEntry+0x78 * (Pawn & 0x1FF),8);
         if(Pawn==0) return;
         float localPlayerZ =memoryTool.readFloat(LocalPlayerController+0xCD8+0x8,8);
-        if(isKnowMap()){
+        if(isKnowMap){
                 int teamId=  memoryTool.readInt( EntityAddress+0x3bf,4);
                 float playerZ=memoryTool.readFloat(Pawn+0xCD8+0x8,8);
                 float levelDv=playerZ-localPlayerZ;
@@ -113,21 +111,5 @@ public class PlayerAddressUpdateThread extends Thread {
                 );
         }
     }
-    public  boolean isKnowMap(){
-        for (int i = 0; i < knowMap.length; i++) {
-            if(mapName.equals(knowMap[i])){
-                return true;
-            }
-        }
-        return false;
-    }
-    private  static  String [] knowMap={
-            "de_ancient",
-            "de_dust2",
-            "de_inferno",
-            "de_mirage",
-            "de_nuke",
-            "de_overpass",
-            "de_vertigo"
-    };
+
 }

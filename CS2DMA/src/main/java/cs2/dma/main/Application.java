@@ -18,7 +18,6 @@ public class Application {
             if(  manager.initializeGameData()){
                 GmaeDataController.setGameDataManager(manager);
                SpringApplication.run(Application.class, args);
-
             }
         }
     }
