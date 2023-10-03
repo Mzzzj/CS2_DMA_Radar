@@ -9,7 +9,7 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
-public class DemoApplication {
+public class Application {
 
     public static void main(String[] args) throws InterruptedException {
         GameDataManager manager=new GameDataManager();
@@ -17,7 +17,7 @@ public class DemoApplication {
             //初始化完成
             if(  manager.initializeGameData()){
                 GmaeDataController.setGameDataManager(manager);
-               SpringApplication.run(DemoApplication.class, args);
+               SpringApplication.run(Application.class, args);
 
             }
         }

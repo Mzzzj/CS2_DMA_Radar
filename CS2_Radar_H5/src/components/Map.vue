@@ -1,5 +1,16 @@
 <!-- 测试页面 -->
 <template>
+	 <div class="control">
+		 <div >
+		 	tick:{{gameInfo.tick}}
+		 </div>
+		 <div >
+			avgTick:{{parseInt(allTickVal/tickTimes)}}
+		</div>
+		 <div @click="opchange()">
+			 人物跟随开关<input type="checkbox" v-model="isOpenFlow"/>
+		 </div>
+	 </div>
 	<div id="map"></div>
 </template>
 
@@ -80,6 +91,10 @@
 	export default {
 		data() {
 			return {
+				allTickVal:0,
+				tickTimes:0,
+				isOpenFlow:false,
+				zoom:1,
 				lastMapName: null,
 				gameInfo: {},
 				MarkerList: [],
@@ -98,9 +113,10 @@
 			setInterval(() => {
 				axios.get("http://127.0.0.1:8080/getGameData").then(response => {
 					if (response.data != "") {
-						
 						that.gameInfo.mapName = response.data.mapName;
 						that.gameInfo.tick = response.data.tick;
+						that.tickTimes++;
+						that.allTickVal+=response.data.tick?response.data.tick:0;
 						that.initPlayerList(response.data.playerList);
 					}
 				}).catch();
@@ -116,6 +132,9 @@
 			this.initMap();
 		},
 		methods: {
+			opchange(){
+				this.isOpenFlow=!this.isOpenFlow;
+			},
 			initPlayerList(data) {
 				let MarkerList = [];
 				let knowMap = true;
@@ -136,6 +155,8 @@
 				//当变更地图
 				//更新地图
 				if (that.lastMapName != that.gameInfo.mapName) {
+					this.allTickVal=0;
+					this.tickTimes=0;
 					that.lastMapName = that.gameInfo.mapName;
 					//加载单张图
 					if (that.imageOverLay != null) {
@@ -146,6 +167,8 @@
 				}
 			},
 			initUnKnowMap() {
+				this.allTickVal=0;
+				this.tickTimes=0;
 				if (that.imageOverLay != null) {
 					that.map.removeLayer(that.imageOverLay)
 					that.imageOverLay = null;
@@ -161,12 +184,11 @@
 							iconSize: [40, 40],
 							iconAnchor: [19, 25]
 						})
-						if (item.localPlayer) {
-							this.map.flyTo(potin, 2);
+						if (item.localPlayer&&this.isOpenFlow) {
+							this.map.flyTo(potin, this.map.getZoom());
 						}
 						
-						mlist.push(this.addMarker(potin, icon, item.localPlayer ? knowMap ? item.angles : 0 : !
-							knowMap ? item.angles : 0));
+						mlist.push(this.addMarker(potin, icon, item.localPlayer ? (knowMap ? item.angles : 0) : item.angles));
 					}
 					if(item.localPlayer){
 						if(mapRadar[that.gameInfo.mapName].needChangeMap){
@@ -195,7 +217,6 @@
 					that.map.removeLayer(that.imageOverLay)
 				}
 				this.bounds[1] = [this.bounds[0][0] + this.XSize, this.bounds[0][1] + this.YSize];
-				//0: Array [ -330, -315 ]1: Array [ 170, 185 ]
 				this.imageOverLay = L.imageOverlay(mapRadar[that.gameInfo.mapName].map, this.bounds)
 					.addTo(this.map);
 			},
@@ -252,10 +273,10 @@
 			initMap() {
 				this.map = L.map("map", {
 					center: [0, 0],
-					zoom: 1,
+					zoom: this.zoom,
 					crs: L.CRS.Simple,
 					maxZoom: 3,
-					minZoom: 1
+					minZoom: 0
 				});
 
 			},
@@ -276,5 +297,14 @@
 		top: 0;
 		left: 0;
 		z-index: 0;
+	}
+	.control{
+		position: absolute;
+		top: 100px;
+		left: 10px;
+		z-index: 1;
+		background-color: aliceblue;
+		border-radius: 10px;
+		padding: 5px 10px;
 	}
 </style>

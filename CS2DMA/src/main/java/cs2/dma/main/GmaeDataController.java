@@ -1,5 +1,6 @@
 package cs2.dma.main;
 
+import ch.qos.logback.core.model.Model;
 import com.alibaba.fastjson.JSONObject;
 import cs2.dma.entry.PlayerInfo;
 import cs2.dma.tuil.GameDataManager;
@@ -21,11 +22,11 @@ public class GmaeDataController {
     public String getGameData(){
         Date time=new Date();
         JSONObject gameData=new JSONObject();
+        gameDataManager.initPlayerInfo();
         String mapName=gameDataManager.getMapName();
         if("<empty>".equals(mapName)||"".equals(mapName)||mapName==null){
             return "";
         }
-        gameDataManager.initPlayerInfo();
         List<PlayerInfo> list=gameDataManager.getPlayerInfoList();
         gameData.put("playerList",list);
         gameData.put("mapName",mapName);

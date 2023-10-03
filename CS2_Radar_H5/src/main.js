@@ -7,10 +7,8 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.pm";
 import "leaflet.pm/dist/leaflet.pm.css";
 import 'leaflet-rotatedmarker'
- 
 
 const app = createApp(App);
 app.mount('#app')
 // 引入Leaflet对象 挂载到Vue上，便于全局使用，也可以单独页面中单独引用
 
-app.config.productionTip = false;
