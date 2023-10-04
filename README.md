@@ -11,6 +11,7 @@ https://github.com/a2x/cs2-dumper/blob/main/generated/client.dll.hpp
 学习讨论可以加QQ：1067106378
 觉得代码有帮助到你可以V我50请我吃顿kfc
 
+![QQ截图20231004172257](https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/b696ba7e-dc30-4c55-81b9-ba800fe3e3a6)
 
 
 For the first time learning to write DMA radar, this is an exercise project, so the code is quite chaotic. Please don't mind.
