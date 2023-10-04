@@ -13,6 +13,17 @@ https://github.com/a2x/cs2-dumper/blob/main/generated/client.dll.hpp
 
 ![QQ截图20231004172257](https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/b696ba7e-dc30-4c55-81b9-ba800fe3e3a6)
 
+使用方式
+编译后使用命令运行
+java -jar CS2DMA-0.0.1.jar
+浏览器访问
+http://localhost:8080/
+
+
+Usage
+Run with commands after compilation
+java -jar CS2DMA-0.0.1.jar
+http://localhost:8080/
 
 For the first time learning to write DMA radar, this is an exercise project, so the code is quite chaotic. Please don't mind.
 
@@ -24,4 +35,7 @@ You can find the latest CS2 game base address and offset here
 https://github.com/a2x/cs2-dumper/blob/main/generated/offsets.rs
 
 https://github.com/a2x/cs2-dumper/blob/main/generated/client.dll.hpp
+
+
+
 
