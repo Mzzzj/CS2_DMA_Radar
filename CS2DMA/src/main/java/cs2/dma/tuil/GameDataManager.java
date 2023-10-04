@@ -11,8 +11,8 @@ import java.util.*;
 public class GameDataManager {
 
 
-    private static long dwLocalPlayerPawn  =0x187AC28;
-    private static long dwEntityList   =0x178D8C8;
+    private static long dwLocalPlayerPawn  =0x187AC38;
+    private static long dwEntityList   =0x178D8D8;
 
     private   String knowMap= "de_ancient,de_dust2,de_inferno,de_mirage,de_nuke,de_overpass,de_vertigo";
     private static String[] argvMemProcFS = {"","-device", "FPGA"};
