@@ -14,12 +14,10 @@
 ## [sponsor 赞助]
 
 **LTC**
-<img src="https://github.com/MoZiHao/CS2_DMA_Radar_External/assets/31085148/77023d9d-97dd-4f50-bbaf-1c0027f013d5" width="210px">
+<img src="https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/0557f1a0-af74-45b3-8209-7b4ec7be438e" width="210px">
+
 **BTC**
-<img src="https://github.com/MoZiHao/CS2_DMA_Radar_External/assets/31085148/3c65bc53-8a91-4901-915d-0b99963ea036" width="210px">
+<img src="https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/8f3c3fee-3aca-4389-87b2-1bb1fa28fbbb" width="210px">
 
-<img src="https://github.com/MoZiHao/CS2_DMA_Radar_External/assets/31085148/eb2cefae-e55c-4de6-9e06-06c7583ebbe3" width="210px">
-<img src="https://github.com/MoZiHao/CS2_DMA_Radar_External/assets/31085148/18ce94d5-9afd-4e6c-a6f8-db848c0d3187" width="210px">
-
-
-
+<img src="https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/ce73f25a-7789-424f-aabe-2b905cd05b9d" width="210px">
+<img src="https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/eaa14cf5-7d60-4d49-ab58-bcbfe255ccae" width="210px">
