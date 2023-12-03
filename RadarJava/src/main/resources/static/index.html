@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>CS2DMA</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+		<!-- Leaflet JS / CSS -->
+		<script src="./js/leaflet-src.js"></script>
+		<link rel="stylesheet" href="./css/leaflet.css">
+
+		<!-- Leaflet-Rotate -->
+		<script src="./js/jquery-3.7.1.min.js"></script>
+		<script src="./js/leaflet-rotate-src.js"></script>
+		<script src="./js/leaflet.rotatedMarker.js"></script>
+
+
+
+
+		<style>
+			#map {
+				position: absolute;
+				width: 100%;
+				height: 100%;
+				top: 0;
+				left: 0;
+				z-index: 0;
+			}
+
+			.controller {
+				position: absolute;
+				z-index: 1;
+				top: 75px;
+				background-color: aliceblue;
+				padding: 10px;
+				border-radius: 20px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="controller">
+			<div>
+				地图名：<span id="mapName"></span>
+			</div>
+			<div>
+				tick：<span id="tick"></span>
+			</div>
+			<div>
+				avgTick：<span id="avgTick"></span>
+			</div>
+			<div>
+				地图跟随人物旋转：<input type="checkbox" id="RotateMapWithPlayer" checked>
+			</div>
+
+			<div>
+				视角跟随：<input type="checkbox" id="flowPlayer" checked>
+			</div>
+
+			<div>
+				显示队友：<input type="checkbox" id="showTeam" checked>
+			</div>
+		</div>
+		<div id="map"></div>
+
+
+		<script>
+			//window.addEventListener("keydown", KeyDown, true);
+			var playerNum = 0;
+			var mapName = 0;
+			var tick = 0;
+			var allTickVal = 0;
+			var tickTimes = 0;
+			var lastMapName = 0;
+			var imageOverLay = null;
+			var layerGroup = null;
+			var RotateMap = true;
+			var FlowPlayer = true;
+			var ShowTeam = true;
+			var bounds= [
+				[0, 0],
+				[450, 450]
+			];
+			var XSize= 500;
+			var YSize= 500;
+			$("#RotateMapWithPlayer").change(function() {
+				RotateMap = $('#RotateMapWithPlayer').prop("checked");
+				if(RotateMap){
+					$('#flowPlayer').prop("checked","checked");
+					FlowPlayer=true;
+				}
+				if(!RotateMap){
+					map.setBearing(0);
+				}
+				$.get('http://127.0.0.1:8080/setRotateMap', {rotateMap:RotateMap}, function(data) {
+				}, 'json')
+			});
+			$("#flowPlayer").change(function() {
+				FlowPlayer = $('#flowPlayer').prop("checked");
+			});
+			$("#showTeam").change(function() {
+				ShowTeam = $('#showTeam').prop("checked");
+				$.get('http://127.0.0.1:8080/setShowTeam', {showTeam:ShowTeam}, function(data) {
+				}, 'json')
+			});
+			var localPlayerIcon = './icon/localPlayer_icon.png'
+			var enemyIcon = './icon/enemy_icon.png'
+			var teammateIcon = './icon/teammate_icon.png'
+			var enemyIconHvd = './icon/enemy_icon_hvd.png'
+			var teammateIconHvd = './icon/teammate_icon_hvd.png'
+			var mapRadar = {
+				de_ancient: {
+					map: "./map/de_ancient_radar_psd.png",
+					bounds: [
+						[-294, -289],
+						[217, 213]
+					]
+				},
+				de_dust2: {
+					map: "./map/de_dust2_radar_psd.png",
+					bounds: [
+						[-127, -247],
+						[323, 202]
+					]
+				},
+				de_inferno: {
+					map: "./map/de_inferno_radar_psd.png",
+					bounds: [
+						[-112, -206],
+						[380, 292]
+					]
+				},
+				de_mirage: {
+					map: "./map/de_mirage_radar_psd.png",
+					bounds: [
+						[-340, -322],
+						[172, 188]
+					]
+				},
+				de_nuke: {
+					needChangeMap: true,
+					map: "./map/de_nuke_radar_psd.png",
+					mapLower: "./map/de_nuke_lower_radar_psd.png",
+					lowerValue: -480,
+					bounds: [
+						[-441, -329],
+						[304, 357]
+					]
+				},
+				de_overpass: {
+					map: "./map/de_overpass_radar_psd.png",
+					bounds: [
+						[-361, -479],
+						[181, 42]
+					]
+				},
+				cs_office: {
+					map: "./map/cs_office_radar_psd.png",
+					bounds: [[-235,-184],[185,240]]
+				},
+				cs_italy: {
+					map: "./map/cs_italy_radar_psd.png",
+					bounds: [[-209,-264],[255,208]]
+				},
+				de_anubis: {
+					map: "./map/de_anubis_radar_psd.png",
+					bounds: [[-208,-287],[336,261]]
+				},
+				de_vertigo: {
+					needChangeMap: true,
+					map: "./map/de_vertigo_radar_psd.png",
+					mapLower: "./map/de_vertigo_lower_radar_psd.png",
+					lowerValue: 11720,
+					bounds: [
+						[-223, -312],
+						[172, 84]
+					]
+				}
+			};
+
+
+			var map = L.map("map", {
+				center: [0, 0],
+				zoom: 1,
+				crs: L.CRS.Simple,
+				maxZoom: 3,
+				minZoom: 1,
+				rotate: true,
+			});
+			socket = new WebSocket("ws://127.0.0.1:8899");
+			socket.onmessage = function(e) {
+				if (e.data != "") {
+					let response = JSON.parse(e.data);
+					if (response != "") {
+						mapName = response.mapName;
+						tick = response.tick;
+						playerNum = response.playerList.length;
+						tickTimes++;
+						allTickVal += response.tick;
+						$('#mapName').text(mapName);
+						$('#tick').text(tick);
+						$('#avgTick').text(parseInt(allTickVal / tickTimes));
+						initPlayerList(response.playerList);
+					}
+				}
+			};
+
+			function initPlayerList(data) {
+				let knowMap = true;
+				if (typeof(mapRadar[mapName]) == "undefined") {
+					knowMap = false;
+				}
+				if (knowMap) {
+					initKnowMap();
+				} else {
+					initUnKnowMap();
+				}
+				if (data.length > 0) {
+					updatePlayerMarker(data, knowMap);
+				}
+			}
+
+			function initKnowMap() {
+
+				//当变更地图
+				//更新地图
+				if (lastMapName != mapName) {
+					lastMapName = mapName;
+					//加载单张图
+					if (imageOverLay != null) {
+						allTickVal = 0;
+						tickTimes = 0;
+						map.removeLayer(imageOverLay);
+					}
+					imageOverLay = L.imageOverlay(mapRadar[mapName].map, mapRadar[mapName].bounds).addTo(map);
+					//imageOverLay = L.imageOverlay(mapRadar[mapName].map, bounds).addTo(map);
+				}
+			}
+
+			function initUnKnowMap() {
+				if (imageOverLay != null) {
+					allTickVal = 0;
+					tickTimes = 0;
+					map.removeLayer(imageOverLay);
+					imageOverLay = null;
+				}
+			}
+
+			function updatePlayerMarker(data, knowMap) {
+				let mlist = [];
+
+				data.forEach(item => {
+					if (item.alive) {
+						let potin = L.latLng(item.x / 10, item.y / 10);
+						let icon = L.icon({
+							iconUrl: item.localPlayer ? localPlayerIcon : (item.enemy ? (item.sameLevel ?
+								enemyIcon : enemyIconHvd) : (item.sameLevel ? teammateIcon :
+								teammateIconHvd)),
+							iconSize: [40, 40],
+							iconAnchor: [19, 25]
+						})
+						if (item.localPlayer) {
+							if(FlowPlayer){
+								map.flyTo(potin, map.getZoom());
+							}
+							
+							if (RotateMap) {
+								map.setBearing(360 - item.angles);
+							}
+						}
+
+						mlist.push(addMarker(potin, icon, item.localPlayer ? (RotateMap ? 0 : (knowMap ? item.angles :
+							0)) : item.angles));
+					}
+					if (item.localPlayer && knowMap) {
+						if (mapRadar[mapName].needChangeMap) {
+							if (item.z > mapRadar[mapName].lowerValue) {
+								map.removeLayer(imageOverLay)
+								imageOverLay = L.imageOverlay(mapRadar[mapName].map, mapRadar[mapName].bounds).addTo(map);
+								//imageOverLay = L.imageOverlay(mapRadar[mapName].map, bounds).addTo(map);
+							} else {
+								map.removeLayer(imageOverLay)
+								imageOverLay = L.imageOverlay(mapRadar[mapName].mapLower,mapRadar[mapName].bounds).addTo(map);
+								//imageOverLay = L.imageOverlay(mapRadar[mapName].map, bounds).addTo(map);
+							}
+
+						}
+					}
+
+				})
+				if (layerGroup != null) {
+					map.removeLayer(layerGroup)
+				}
+				layerGroup = L.layerGroup(mlist);
+				map.addLayer(layerGroup);
+			}
+
+			function addMarker(point, icon, Angle) {
+				return L.marker(point, {
+					icon: icon,
+					rotationAngle: Angle
+				});
+			}
+			
+			function reloadMap() {
+				//加载单张图
+				if (imageOverLay != null) {
+					map.removeLayer(imageOverLay)
+				}
+				bounds[1] = [bounds[0][0] + XSize, bounds[0][1] + YSize];
+				imageOverLay = L.imageOverlay(mapRadar[mapName].map, bounds)
+					.addTo(map);
+					console.log(JSON.stringify(bounds))
+			}
+			
+			function KeyDown(e) {
+			
+			
+				if (e.keyCode == 96) {
+					XSize = 500;
+					YSize = 500;
+					reloadMap();
+				}
+				//+ X
+				if (e.keyCode == 98) {
+					XSize += 1
+					reloadMap();
+				}
+				//-
+				if (e.keyCode == 97) {
+					XSize -= 1
+					reloadMap();
+				}
+				//+ Y
+				if (e.keyCode == 101) {
+					YSize += 1
+					reloadMap();
+				}
+				//-
+				if (e.keyCode == 100) {
+					YSize -= 1
+					reloadMap();
+				}
+				//←
+				if (e.keyCode == 37) {
+					bounds[0][1] += 1;
+					reloadMap();
+				}
+				//↑
+				if (e.keyCode == 38) {
+					bounds[0][0] -= 1;
+					reloadMap();
+				}
+				//→
+				if (e.keyCode == 39) {
+					bounds[0][1] -= 1;
+					reloadMap();
+				}
+				//↓
+				if (e.keyCode == 40) {
+					bounds[0][0] += 1;
+					reloadMap();
+				}
+			}
+		</script>
+
+
+	</body>
+
+</html>
