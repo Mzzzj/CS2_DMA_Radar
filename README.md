@@ -1,8 +1,8 @@
 
 # CS2_DMA_Radar
  JAVA+H5 DMA Radar
+![QQ截图20231203124533](https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/c99c95c7-a772-47ea-994d-b7a99585c700)
 
-![QQ截图20231203124533](https://github.com/MoZiHao/CS2_DMA_Radar_External/assets/31085148/a40893f3-29ac-4b43-8417-2fc255faee9a)
 若你不会编译或需要技术支持请加Q 1067106378
 
 ## [教程]
