@@ -5,11 +5,11 @@
 若你不会编译或需要技术支持请加Q 1067106378
 
 # CS2_DMA_Extrnal
-基于 [CS2_Extrnal](https://github.com/TKazer/CS2_External)   的DMA版
+基于 [CS2_Extrnal](https://github.com/TKazer/CS2_External)   的[DMA版](https://github.com/MoZiHao/CS2_DMA_Extrnal/tree/main)
 
 
 ![D7V%LV` TSUF4_%WA HI~UI](https://github.com/MoZiHao/CS2_DMA_Extrnal/assets/31085148/eefea6bf-b10d-49b0-8f21-94aac218d841)
-[透视版](https://github.com/MoZiHao/CS2_DMA_Extrnal/tree/main)
+
 ## [教程]
 
  1. 安装JDK20
