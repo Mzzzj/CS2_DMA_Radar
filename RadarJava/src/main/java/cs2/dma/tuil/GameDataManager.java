@@ -86,7 +86,7 @@ public class GameDataManager {
         if(clientAddress==0){
             return getGameProcess();
         }
-        mapNameAddress=memoryTool.getModuleAddress("engine2.dll");
+        mapNameAddress=memoryTool.getModuleAddress("matchmaking.dll");
         if(mapNameAddress==0){
             return getGameProcess();
         }
@@ -107,7 +107,7 @@ public class GameDataManager {
 
     public  void  initPlayerInfo(){
 
-        mapName= memoryTool.readString(mapNameAddress,32);
+        mapName= memoryTool.readString(mapNameAddress+0x4,32);
         LocalPlayerController=memoryTool.readAddress(clientAddress+dwLocalPlayerPawn,8);
         if(LocalPlayerController==0){
             return;
