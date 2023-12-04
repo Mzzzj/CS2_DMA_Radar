@@ -102,7 +102,7 @@ public class PlayerAddressUpdateThread extends Thread {
                         teamId,
                         memoryTool.readInt( Pawn+m_iHealth,4),
                         memoryTool.readInt( Pawn+m_iPawnArmor,4),
-                        memoryTool.readInt( Pawn+m_lifeState   ,4)!=257,
+                        memoryTool.readInt( Pawn+m_lifeState   ,4)==256,
                         LocalPlayerController==Pawn,
                        isEnemy,
                         memoryTool.readFloat(Pawn+m_vOldOrigin +0x4,8),
@@ -111,6 +111,7 @@ public class PlayerAddressUpdateThread extends Thread {
                        enemyAngle,
                         levelDv<levelHeight
                 );
+
         }else{
 
                 float pX=memoryTool.readFloat(Pawn+m_vOldOrigin +0x4,8);
@@ -128,7 +129,7 @@ public class PlayerAddressUpdateThread extends Thread {
                         teamId,
                         memoryTool.readInt( Pawn+m_iHealth,4),
                         memoryTool.readInt( Pawn+m_iPawnArmor,4),
-                        memoryTool.readInt( Pawn+m_lifeState  ,4)!=0,
+                        memoryTool.readInt( Pawn+m_lifeState  ,4)==256,
                         LocalPlayerController==Pawn,
                       isEnemy,
                         newX,
