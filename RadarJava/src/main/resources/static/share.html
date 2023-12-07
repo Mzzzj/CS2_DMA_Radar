@@ -42,9 +42,6 @@
 	<body>
 		<div class="controller">
 			<div>
-				<button>共享模式</button>
-			</div>
-			<div>
 				地图名：<span id="mapName"></span>
 			</div>
 			<div>
@@ -53,17 +50,11 @@
 			<div>
 				avgTick：<span id="avgTick"></span>
 			</div>
-			<div>
-				地图跟随人物旋转：<input type="checkbox" id="RotateMapWithPlayer" checked>
-			</div>
 
 			<div>
 				视角跟随：<input type="checkbox" id="flowPlayer" checked>
 			</div>
 
-			<div>
-				显示队友：<input type="checkbox" id="showTeam" checked>
-			</div>
 		</div>
 		<div id="map"></div>
 
@@ -87,29 +78,10 @@
 			];
 			var XSize= 500;
 			var YSize= 500;
+			var wsUrl=prompt("请输入主机端8899端口映射的地址(如:192.168.3.2:8899)");
 
-			if(confirm("是否使用共享(需输入主机端内网穿透的ws地址)\n(开发中功能，尚未完善，\n暂时能满足局域网内用其他设备访问雷达的需求)")){
-				window.location.href = "/share.html";
-			}
-			$("#RotateMapWithPlayer").change(function() {
-				RotateMap = $('#RotateMapWithPlayer').prop("checked");
-				if(RotateMap){
-					$('#flowPlayer').prop("checked","checked");
-					FlowPlayer=true;
-				}
-				if(!RotateMap){
-					map.setBearing(0);
-				}
-				$.get('http://127.0.0.1:8080/setRotateMap', {rotateMap:RotateMap}, function(data) {
-				}, 'json')
-			});
 			$("#flowPlayer").change(function() {
 				FlowPlayer = $('#flowPlayer').prop("checked");
-			});
-			$("#showTeam").change(function() {
-				ShowTeam = $('#showTeam').prop("checked");
-				$.get('http://127.0.0.1:8080/setShowTeam', {showTeam:ShowTeam}, function(data) {
-				}, 'json')
 			});
 			var localPlayerIcon = './icon/localPlayer_icon.png'
 			var enemyIcon = './icon/enemy_icon.png'
@@ -195,7 +167,7 @@
 				minZoom: 1,
 				rotate: true,
 			});
-			socket = new WebSocket("ws://127.0.0.1:8899");
+			socket = new WebSocket("ws://"+wsUrl);
 			socket.onmessage = function(e) {
 				if (e.data != "") {
 					let response = JSON.parse(e.data);

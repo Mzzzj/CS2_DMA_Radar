@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -41,7 +42,10 @@ public class Application {
                 //初始化完成
                 System.out.println("启动成功");
                 if(manager.initializeGameData()){
+                    InetAddress address = InetAddress.getLocalHost();
+                    String localIP = address.getHostAddress();
                     System.out.println("请访问 http://localhost:8080/ 查看雷达");
+                    System.out.println("请访问 http://"+localIP+":8080/ 查看雷达");
                     int port = 8899;
                     SocketServer s = new SocketServer(port,manager);
                     s.start();
