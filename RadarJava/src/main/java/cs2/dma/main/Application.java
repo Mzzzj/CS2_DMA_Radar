@@ -1,6 +1,7 @@
 package cs2.dma.main;
 
 import com.alibaba.fastjson.JSONObject;
+import cs2.dma.entry.Offsets;
 import cs2.dma.tuil.GameDataManager;
 import cs2.dma.tuil.PCUUID;
 import okhttp3.OkHttpClient;
@@ -18,6 +19,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 @SpringBootApplication
@@ -25,15 +28,14 @@ public class Application {
 
     public static void main(String[] args) throws Exception {
         System.out.println("请先启动游戏");
+        Offsets.LoadOffsets();
         SpringApplication.run(Application.class,args);
         runCheat();
     }
 
     public static void runCheat() throws IOException {
         GameDataManager manager=new GameDataManager();
-        manager.setDwEntityList(Long.valueOf(ConfigFileTool.getKey("EntityList")));
-        manager.setDwLocalPlayerPawn(Long.valueOf(ConfigFileTool.getKey("LocalPlayerPawn")));
-        manager.setMapNameVal(Long.valueOf(ConfigFileTool.getKey("MapName")));
+
         try {
             if(manager.initializeVmm()){
                 //初始化完成

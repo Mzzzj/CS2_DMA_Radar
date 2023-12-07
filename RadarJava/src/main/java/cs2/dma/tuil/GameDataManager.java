@@ -1,6 +1,7 @@
 package cs2.dma.tuil;
 
 import com.alibaba.fastjson.JSONObject;
+import cs2.dma.entry.Offsets;
 import cs2.dma.entry.PlayerInfo;
 import cs2.dma.main.PlayerAddressUpdateThread;
 import vmm.IVmm;
@@ -10,25 +11,6 @@ import vmm.IVmmProcess;
 import java.util.*;
 
 public class GameDataManager {
-
-
-    private static long dwLocalPlayerPawn  ;
-    private static long dwEntityList  ;
-    private static long mapNameVal  ;
-
-
-    public void setDwLocalPlayerPawn(long dwLocalPlayerPawn) {
-        GameDataManager.dwLocalPlayerPawn = dwLocalPlayerPawn;
-    }
-
-    public void setDwEntityList(long dwEntityList) {
-        GameDataManager.dwEntityList = dwEntityList;
-    }
-
-
-    public void setMapNameVal(long mapNameVal) {
-        GameDataManager.mapNameVal = mapNameVal;
-    }
 
     private   String knowMap= "de_ancient,de_dust2,de_inferno,de_mirage,de_nuke,de_overpass,de_vertigo,cs_office,cs_italy,de_anubis";
     private static String[] argvMemProcFS = {"","-device", "FPGA"};
@@ -96,8 +78,8 @@ public class GameDataManager {
     public boolean initializeGameData(){
        if(getGameProcess()){
 
-           mapNameAddress=memoryTool.readAddress(mapNameAddress+mapNameVal,8);
-           EntityList=memoryTool.readAddress(clientAddress+dwEntityList,8);
+           mapNameAddress=memoryTool.readAddress(mapNameAddress+Offsets.mapNameVal,8);
+           EntityList=memoryTool.readAddress(clientAddress+Offsets.dwEntityList,8);
            EntityList=memoryTool.readAddress(EntityList+0x10,8);
            return true;
        }
@@ -108,7 +90,7 @@ public class GameDataManager {
     public  void  initPlayerInfo(){
 
         mapName= memoryTool.readString(mapNameAddress+0x4,32);
-        LocalPlayerController=memoryTool.readAddress(clientAddress+dwLocalPlayerPawn,8);
+        LocalPlayerController=memoryTool.readAddress(clientAddress+Offsets.dwLocalPlayerPawn,8);
         if(LocalPlayerController==0){
             return;
         }
@@ -121,7 +103,6 @@ public class GameDataManager {
             updateThread.setMemoryTool(memoryTool);
             updateThread.setClientAddress(clientAddress);
             updateThread.setEntityList(EntityList);
-            updateThread.setDwEntityList(dwEntityList);
             updateThread.setLocalPlayerController(LocalPlayerController);
             updateThread.setKnowMap(isKnowMap);
             updateThread.start();
