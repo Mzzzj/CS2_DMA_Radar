@@ -25,6 +25,3 @@
 
 **BTC**
 <img src="https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/8f3c3fee-3aca-4389-87b2-1bb1fa28fbbb" width="210px">
-
-<img src="https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/ce73f25a-7789-424f-aabe-2b905cd05b9d" width="210px">
-<img src="https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/eaa14cf5-7d60-4d49-ab58-bcbfe255ccae" width="210px">
