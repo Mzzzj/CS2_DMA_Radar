@@ -2,7 +2,6 @@
  JAVA+H5 DMA Radar
 ![QQ截图20231203124533](https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/c99c95c7-a772-47ea-994d-b7a99585c700)
 已简化基址偏移跟新方式，替换目录中的json文件即可更新
-若你不会编译或需要技术支持请加Q 1067106378
 
 # CS2_DMA_Extrnal
 基于 [CS2_Extrnal](https://github.com/TKazer/CS2_External)   的[DMA版](https://github.com/MoZiHao/CS2_DMA_Extrnal/tree/main)
