@@ -1,4 +1,9 @@
 # CS2_DMA_Radar
+
+此项目不再维护，想要正常运行你需要自己学会更新偏移文件。你可以去这个论坛学习如何自己更新偏移文件，https://www.unknowncheats.me/forum/counter-strike-2-a/576077-counter-strike-2-reversal-structs-offsets.html 我不会教你们，你们需要自己去学习
+
+This project is no longer maintained, and in order to run properly, you need to learn how to update offset files yourself. You can go to this forum to learn how to update offset files yourself, https://www.unknowncheats.me/forum/counter-strike-2-a/576077-counter-strike-2-reversal-structs-offsets.html I won't teach you, you need to learn on your own
+
  JAVA+H5 DMA Radar
 ![QQ截图20231203124533](https://github.com/MoZiHao/CS2_DMA_Radar/assets/31085148/c99c95c7-a772-47ea-994d-b7a99585c700)
 已简化基址偏移跟新方式，替换目录中的json文件即可更新
